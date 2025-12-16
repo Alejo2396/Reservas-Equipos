@@ -1,100 +1,103 @@
-const API = 'http://localhost:3000/api';
+const API = "http://localhost:3000";
 
-if (location.pathname.includes('dashboard')) {
-  const u = localStorage.getItem('usuario');
-  if (!u) {
-    alert('Debes iniciar sesión');
-    location.href = 'login.html';
-  }
-}
+async function registrar() {
+    const nombre = document.getElementById("nombre")?.value;
+    const correo = document.getElementById("correo")?.value;
+    const password = document.getElementById("password")?.value;
 
-function registrar() {
-  fetch(API + '/registro', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      nombre: nombre.value,
-      correo: correo.value,
-      password: password.value
-    })
-  })
-  .then(() => location.href = 'login.html');
-}
-
-function login() {
-  fetch(API + '/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      correo: correo.value,
-      password: password.value
-    })
-  })
-  .then(r => {
-    if (!r.ok) {
-      alert('Correo o contraseña incorrectos');
-      throw new Error('Login inválido');
-    }
-    return r.json();
-  })
-  .then(u => {
-    localStorage.setItem('usuario', JSON.stringify(u));
-    location.href = 'dashboard.html';
-  })
-  .catch(() => {});
-}
-
-function cargarEquipos() {
-  fetch(API + '/equipos/' + fecha.value)
-    .then(r => r.json())
-    .then(data => {
-      equipo.innerHTML = '';
-      data.forEach(e => {
-        equipo.innerHTML += `<option value="${e.id}">${e.nombre}</option>`;
-      });
-    });
-}
-
-function reservar() {
-  const u = JSON.parse(localStorage.getItem('usuario'));
-
-  if (!u || !u.id) {
-    alert('Sesión inválida');
-    return;
-  }
-
-  fetch(API + '/reservar', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      usuario_id: u.id,
-      equipo_id: equipo.value,
-      fecha: fecha.value
-    })
-  })
-  .then(() => alert('Reserva creada correctamente'));
-}
-
-function verReservas() {
-  const u = JSON.parse(localStorage.getItem('usuario'));
-
-  fetch(API + '/mis-reservas/' + u.id)
-    .then(r => r.json())
-    .then(data => {
-      lista.innerHTML = '';
-
-      if (data.length === 0) {
-        lista.innerHTML = '<li>No hay reservas</li>';
+    if (!nombre || !correo || !password) {
+        alert("Todos los campos son obligatorios");
         return;
-      }
+    }
 
-      data.forEach(r => {
-        lista.innerHTML += `<li>${r.nombre} - ${r.fecha}</li>`;
-      });
+    const res = await fetch(`${API}/registro`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, correo, password })
     });
+
+    const data = await res.json();
+    alert(data.mensaje);
+
+    if (res.ok) {
+        window.location.href = "login.html";
+    }
+}
+
+async function login() {
+    const correo = document.getElementById("correo").value;
+    const password = document.getElementById("password").value;
+
+    const res = await fetch(`${API}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ correo, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        alert(data.mensaje);
+        return;
+    }
+
+    localStorage.setItem("usuario", JSON.stringify(data.usuario));
+    window.location.href = "dashboard.html";
 }
 
 function cerrarSesion() {
-  localStorage.removeItem('usuario');
-  window.location.href = 'login.html';
+    localStorage.removeItem("usuario");
+    window.location.href = "login.html";
+}
+
+async function cargarEquipos() {
+    const fecha = document.getElementById("fecha").value;
+    const select = document.getElementById("equipo");
+
+    select.innerHTML = "";
+
+    const res = await fetch(`${API}/equipos?fecha=${fecha}`);
+    const data = await res.json();
+
+    data.forEach(e => {
+        const option = document.createElement("option");
+        option.value = e.id;
+        option.textContent = e.nombre;
+        select.appendChild(option);
+    });
+}
+
+async function reservar() {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const equipoId = document.getElementById("equipo").value;
+    const fecha = document.getElementById("fecha").value;
+
+    const res = await fetch(`${API}/reservas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            usuario_id: usuario.id,
+            equipo_id: equipoId,
+            fecha
+        })
+    });
+
+    const data = await res.json();
+    alert(data.mensaje);
+}
+
+async function verReservas() {
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    const res = await fetch(`${API}/reservas/${usuario.id}`);
+    const data = await res.json();
+
+    const lista = document.getElementById("lista");
+    lista.innerHTML = "";
+
+    data.forEach(r => {
+        const li = document.createElement("li");
+        li.textContent = `${r.equipo} - ${r.fecha}`;
+        lista.appendChild(li);
+    });
 }
