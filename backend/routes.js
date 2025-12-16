@@ -6,89 +6,84 @@ router.post('/registro', (req, res) => {
   const { nombre, correo, password } = req.body;
 
   db.query(
-    'INSERT INTO usuarios VALUES (NULL, ?, ?, ?)',
+    'INSERT INTO usuarios (nombre, correo, password) VALUES (?, ?, ?)',
     [nombre, correo, password],
-    (e) => {
-      if (e) {
-        console.error(e);
-        return res.status(500).json({ error: 'Error al registrar' });
+    (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ mensaje: 'Error al registrar' });
       }
-      res.json({ ok: true });
+      res.json({ mensaje: 'Usuario registrado correctamente' });
     }
   );
 });
-
 
 router.post('/login', (req, res) => {
   const { correo, password } = req.body;
 
-  console.log('BODY:', req.body); 
-
   db.query(
     'SELECT * FROM usuarios WHERE correo=? AND password=?',
     [correo, password],
-    (e, r) => {
-
-      if (e) {
-        console.error('ERROR MYSQL:', e); 
-        return res.status(500).json({ error: 'Error MySQL' });
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ mensaje: 'Error MySQL' });
       }
 
-      if (!r || r.length === 0) {
-        return res.status(401).json({ error: true });
+      if (rows.length === 0) {
+        return res.status(401).json({ mensaje: 'Credenciales incorrectas' });
       }
 
-      res.json(r[0]);
+      res.json({ usuario: rows[0] });
     }
   );
 });
 
-router.get('/equipos/:fecha', (req, res) => {
+
+router.get('/equipos', (req, res) => {
+  const { fecha } = req.query;
+
   db.query(
-    `SELECT * FROM equipos WHERE id NOT IN
-     (SELECT equipo_id FROM reservas WHERE fecha=?)`,
-    [req.params.fecha],
-    (e, r) => {
-      if (e) {
-        console.error(e);
-        return res.status(500).json({ error: true });
+    `SELECT * FROM equipos 
+     WHERE id NOT IN (
+       SELECT equipo_id FROM reservas WHERE fecha = ?
+     )`,
+    [fecha],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ mensaje: 'Error al cargar equipos' });
       }
-      res.json(r);
+      res.json(rows);
     }
   );
 });
 
-
-router.post('/reservar', (req, res) => {
+router.post('/reservas', (req, res) => {
   const { usuario_id, equipo_id, fecha } = req.body;
 
   db.query(
-    'INSERT INTO reservas VALUES (NULL, ?, ?, ?)',
+    'INSERT INTO reservas (usuario_id, equipo_id, fecha) VALUES (?, ?, ?)',
     [usuario_id, equipo_id, fecha],
-    (e) => {
-      if (e) {
-        console.error(e);
-        return res.status(500).json({ error: true });
+    (err) => {
+      if (err) {
+        return res.status(500).json({ mensaje: 'Error al reservar' });
       }
-      res.json({ ok: true });
+      res.json({ mensaje: 'Reserva realizada correctamente' });
     }
   );
 });
 
-
-router.get('/mis-reservas/:id', (req, res) => {
+router.get('/reservas/:id', (req, res) => {
   db.query(
-    `SELECT equipos.nombre, reservas.fecha
-     FROM reservas
-     JOIN equipos ON reservas.equipo_id = equipos.id
-     WHERE reservas.usuario_id = ?`,
+    `SELECT e.nombre AS equipo, r.fecha
+     FROM reservas r
+     JOIN equipos e ON r.equipo_id = e.id
+     WHERE r.usuario_id = ?`,
     [req.params.id],
-    (e, r) => {
-      if (e) {
-        console.error(e);
-        return res.status(500).json({ error: true });
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ mensaje: 'Error al obtener reservas' });
       }
-      res.json(r);
+      res.json(rows);
     }
   );
 });
