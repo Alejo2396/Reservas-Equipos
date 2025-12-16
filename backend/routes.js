@@ -2,9 +2,6 @@ const express = require('express');
 const router = express.Router();
 const db = require('./db');
 
-/* =========================
-   REGISTRO DE USUARIO
-========================= */
 router.post('/registro', (req, res) => {
   const { nombre, correo, password } = req.body;
 
@@ -21,13 +18,11 @@ router.post('/registro', (req, res) => {
   );
 });
 
-/* =========================
-   LOGIN (CORREGIDO)
-========================= */
+
 router.post('/login', (req, res) => {
   const { correo, password } = req.body;
 
-  console.log('BODY:', req.body); // 👈 DEBUG
+  console.log('BODY:', req.body); 
 
   db.query(
     'SELECT * FROM usuarios WHERE correo=? AND password=?',
@@ -35,7 +30,7 @@ router.post('/login', (req, res) => {
     (e, r) => {
 
       if (e) {
-        console.error('ERROR MYSQL:', e); // 👈 AQUÍ VERÁS LA CAUSA
+        console.error('ERROR MYSQL:', e); 
         return res.status(500).json({ error: 'Error MySQL' });
       }
 
@@ -48,9 +43,6 @@ router.post('/login', (req, res) => {
   );
 });
 
-/* =========================
-   EQUIPOS DISPONIBLES
-========================= */
 router.get('/equipos/:fecha', (req, res) => {
   db.query(
     `SELECT * FROM equipos WHERE id NOT IN
@@ -66,9 +58,7 @@ router.get('/equipos/:fecha', (req, res) => {
   );
 });
 
-/* =========================
-   RESERVAR EQUIPO
-========================= */
+
 router.post('/reservar', (req, res) => {
   const { usuario_id, equipo_id, fecha } = req.body;
 
@@ -85,9 +75,7 @@ router.post('/reservar', (req, res) => {
   );
 });
 
-/* =========================
-   MIS RESERVAS
-========================= */
+
 router.get('/mis-reservas/:id', (req, res) => {
   db.query(
     `SELECT equipos.nombre, reservas.fecha

@@ -1,8 +1,5 @@
 const API = 'http://localhost:3000/api';
 
-/* =========================
-   PROTEGER DASHBOARD
-========================= */
 if (location.pathname.includes('dashboard')) {
   const u = localStorage.getItem('usuario');
   if (!u) {
@@ -11,9 +8,6 @@ if (location.pathname.includes('dashboard')) {
   }
 }
 
-/* =========================
-   REGISTRO
-========================= */
 function registrar() {
   fetch(API + '/registro', {
     method: 'POST',
@@ -27,9 +21,6 @@ function registrar() {
   .then(() => location.href = 'login.html');
 }
 
-/* =========================
-   LOGIN (CORREGIDO)
-========================= */
 function login() {
   fetch(API + '/login', {
     method: 'POST',
@@ -53,9 +44,6 @@ function login() {
   .catch(() => {});
 }
 
-/* =========================
-   CARGAR EQUIPOS
-========================= */
 function cargarEquipos() {
   fetch(API + '/equipos/' + fecha.value)
     .then(r => r.json())
@@ -67,9 +55,6 @@ function cargarEquipos() {
     });
 }
 
-/* =========================
-   RESERVAR EQUIPO
-========================= */
 function reservar() {
   const u = JSON.parse(localStorage.getItem('usuario'));
 
@@ -90,9 +75,6 @@ function reservar() {
   .then(() => alert('Reserva creada correctamente'));
 }
 
-/* =========================
-   VER MIS RESERVAS
-========================= */
 function verReservas() {
   const u = JSON.parse(localStorage.getItem('usuario'));
 
@@ -112,9 +94,6 @@ function verReservas() {
     });
 }
 
-/* =========================
-   CERRAR SESIÓN
-========================= */
 function cerrarSesion() {
   localStorage.removeItem('usuario');
   window.location.href = 'login.html';
