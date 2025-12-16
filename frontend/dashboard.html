@@ -1,22 +1,37 @@
 <!DOCTYPE html>
 <html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+</head>
 <body>
 
-<h2>Dashboard</h2>
-<button onclick="cerrarSesion()">Cerrar sesión</button>
+  <h2>Dashboard</h2>
 
-<input type="date" id="fecha">
-<button onclick="cargarEquipos()">Buscar</button><br><br>
+  <button onclick="cerrarSesion()">Cerrar sesión</button>
+  <br><br>
 
-<select id="equipo"></select><br><br>
+  <input type="date" id="fecha">
+  <button onclick="cargarEquipos()">Buscar</button>
+  <br><br>
 
-<button onclick="reservar()">Reservar</button>
+  <select id="equipo"></select>
+  <br><br>
 
-<h3>Mis Reservas</h3>
-<button onclick="verReservas()">Ver reservas</button>
+  <button onclick="reservar()">Reservar</button>
 
-<ul id="lista"></ul>
+  <h3>Mis Reservas</h3>
+  <button onclick="verReservas()">Ver reservas</button>
 
-<script src="app.js"></script>
+  <ul id="lista"></ul>
+
+  <script>
+    function cerrarSesion() {}
+    function cargarEquipos() {}
+    function reservar() {}
+    function verReservas() {}
+  </script>
+
+  <script src="app.js"></script>
 </body>
 </html>
